@@ -1,4 +1,6 @@
 <?php
+session_start();
+$sessionId = $_SESSION['sessionID'];
 //$d = array("localhost", "web308", "Muc9tAeM", "usr_web308_1");
 $d = array("localhost", "root", "", "tipper");
 
@@ -17,21 +19,22 @@ $mysqli->query("SELECT * FROM tips");
 $mysqli->query("SELECT * FROM settings");
 
 
-if($matchSql = $mysqli->query("SELECT * FROM spieler")) {
+if($matchSql = $mysqli->query("SELECT * FROM spieler WHERE session_id = '".$sessionId."'")) {
     while ($row = $matchSql->fetch_array(MYSQL_ASSOC)) {
         $count= $mysqli->query("SELECT count(*) AS total FROM tips WHERE spieler_id = ".$row["id"]."")->fetch_assoc()['total'];  
          $data["spieler"][$row["id"]] = array($row['name'], $row['score'], $row['dick'], $count);
     }
 }
+echo $mysqli->error;
 
-if($matchSql = $mysqli->query("SELECT * FROM matches")) {
+if($matchSql = $mysqli->query("SELECT * FROM matches WHERE session_id = '".$sessionId."'")) {
     while ($row = $matchSql->fetch_array(MYSQL_ASSOC)) {
          $data["matches"][$row["id"]] = $row;
         
     }
 }
 
-if($matchSql = $mysqli->query("SELECT * FROM tips")) {
+if($matchSql = $mysqli->query("SELECT * FROM tips WHERE session_id = '".$sessionId."'")) {
     while ($row = $matchSql->fetch_array(MYSQL_ASSOC)) {
         $currentMatch = $data["matches"][$row['match_id']];
         $currentPlayer = $data["spieler"][$row['spieler_id']];

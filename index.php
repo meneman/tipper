@@ -71,12 +71,13 @@
                 $name = $_POST['sessionname'];
                 $pw = $_POST['password'];
                 // auslesen einer mysql zeiel
-                $session = $mysqli->query("SELECT 1 FROM sessions WHERE session_name = '".$name."'")->fetch_row();
-                if( ((bool) $mysqli->query("SELECT EXISTS (SELECT 1 FROM sessions WHERE session_name = '".$name."')")->fetch_row()[0]) AND password_verify($pw, $session['passwort']) ){
+                $session = $mysqli->query("SELECT * FROM sessions WHERE session_name = '".$name."'")->fetch_assoc();
+                
+                if( ((bool) $mysqli->query("SELECT EXISTS (SELECT 1 FROM sessions WHERE session_name = '".$name."')")->fetch_row()[0]) AND password_verify($pw, $session['password']) ){
                     
                     
-                    $_SESSION['sessionID'] = $user['id'];
-                    $_SESSION['login'] =true;
+                    $_SESSION['sessionID'] = $session['id'];
+                    $_SESSION['login'] = true;
                 } else {
                     $error[] = "Password oder Nutzername falsch";
                     $_SESSION['login'] = false;
@@ -85,7 +86,10 @@
 
     } elseif(@!$_SESSION['login'] AND !isset($_POST['job'])) { 
         $_SESSION['login'] = false;
-    } 
+    } else {
+        //whatever happened here just dont log him in
+         $_SESSION['login'] = false;
+    }
         
     
 
@@ -166,17 +170,9 @@
      <div class="panel panel-heading">
         <h5 class"panel-title"> History</h3>   
      </div>
-         <table class="table table-striped">
-        <thead>
-            <tr>
-                <td>Datum</td><td>Spiel</td><td>Ergebnis</td>
-            </tr>
-        </thead>
-        <tbody>
-            
-        <div class="historyGames"></div>
-        </tbody>
-      </table>    
+
+        <div id="historyGames"></div>
+
 </div>       
 
         
@@ -360,12 +356,9 @@
                     
                 <div class="SetScoreInputs"></div>
                 
-                <input type="text" name="InputName" class="form-control" id="mannschaftone" >
-        
-            
-
-                
-                <input type="text" name="InputName" class="form-control" id="mannschafttwo" placeholder="Gustav">
+                <input type="text" name="ResultFirst" class="form-control" id="mannschaftone" >
+                -
+                <input type="text" name="ResultSecound" class="form-control" id="mannschafttwo" placeholder="Gustav">
 
             
           </div>
@@ -376,10 +369,10 @@
         
         
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="submit" type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+        <button type="submit" type="button" class="btn btn-primary">Ergebnis eintragen</button>
       </div>
-           
+         <input type="hidden" name="match" id="matchId">  
         <input type="hidden" name="job" value="addResult">  
         </form>  
     </div>
@@ -421,12 +414,12 @@
                     
                 
                 
-                <input type="text" name="InputName" class="form-control" id="tiptone" >
+                <input type="text" name="TipFirst" class="form-control" id="tipone" >
         
             
 
                 
-                <input type="text" name="InputName" class="form-control" id="tiptwo" >
+                <input type="text" name="TipSecound" class="form-control" id="tiptwo" >
 
             
           </div>
@@ -441,8 +434,12 @@
         <button type="submit" type="button" class="btn btn-primary">Save changes</button>
       </div>
            
+           
+        <input type="hidden" name="match" id="matchId">
         <input type="hidden" name="job" value="tipGame">  
         </form>  
+        
+        
     </div>
  
     </div>
@@ -576,11 +573,13 @@
             }); 
                                     
             $('#addResult').ajaxForm(function() { 
+                $("#SetScoreModal").modal('hide');
             init();      
 
             }); 
                                     
             $('#makeBetForm').ajaxForm(function() { 
+                $("#TipGameModal").modal('hide');
             init();      
 
             }); 
@@ -593,6 +592,7 @@
                 buildHtmlTable(AllData.spieler);
                 buildGamesList(AllData.matches);
                 buildPlayerSelectForm(AllData.spieler);
+                BuildHistoryTable(AllData.matches);
                 return AllData;
             });
             }
@@ -633,6 +633,40 @@
                 $table.appendTo('#ranking');	
             }
             
+            function BuildHistoryTable(games){
+                console.log(games);
+                //remove old Table
+                $('#historyGames').children().remove();
+                // create table
+                var $table = $('<table>').addClass('table table-striped')
+
+                // thead
+                $table
+                .append('<thead>').children('thead')
+                .append('<tr />').children('tr').append('<th>Datum</th><th>Spiel</th><th>Ergebnis</th>');
+
+                //tbody
+                var $tbody = $table.append('<tbody />').children('tbody');
+
+
+                $.each(games, function (i, match) {
+
+                if(match.finished == 1){
+                $tbody.append('<tr />').children('tr:last')
+                .append("<td>"+match.spieldatuml+" </td>")
+                .append("<td>"+ match.name_first+" - "+match.name_secound+"</td>")
+                .append("<td> "+match.score_first+" - "+match.score_secound+"</td>");
+                        
+                }
+
+
+                });
+
+
+                // add table to dom
+                $table.appendTo('#historyGames');	
+            }
+            
             
             
             function buildGamesList(games){
@@ -651,10 +685,9 @@
                     
                 }                      
             });
-                MAKINGASTRINGBECAUSEITDOESNTWORKELSE = (historyItems.join(' '));
-             
+                //console.log(tableHtml);
                 $('#upcomingGames').append(upcomingItems.join(' '));
-                $('#historyGames').append(MAKINGASTRINGBECAUSEITDOESNTWORKELSE);
+
 
             }
             
@@ -664,9 +697,11 @@
                 
                 listitems.push("<option value="+i+">"+player[0]+"</option>"); 
             });
-            
                 
-                $('.playerSelectForm').append(listitems.join(' '));
+                
+                
+                $('#playerSelectFormDelete').append(listitems.join(' '));
+                $('#playerSelectFormTip').append(listitems.join(' '));
 
                 
 
@@ -693,9 +728,10 @@
                       console.log(match);
                     modal.find('.modal-title').text("Ausgang des Spiels " + match.name_first+" - "+ match.name_secound+" ");
                     modal.find("#tipone").attr( "placeholder", match.name_first+" Tore" );
-                    modal.find("#tipone").attr( "mannschaftone", match.name_secound);
+                    //modal.find("#tipone").attr( "mannschaftone", match.name_first);
                     modal.find("#tiptwo").attr( "placeholder", ""+match.name_secound+" Tore" );
-                    modal.find("#tiptwo").attr( "mannschafttwo", ""+match.name_secound);
+                    //modal.find("#tiptwo").attr( "mannschafttwo", ""+match.name_secound);
+                    modal.find("#matchId").attr("value", match.id);
 
                       
                       
@@ -731,6 +767,7 @@
                     modal.find("#mannschaftone").attr( "mannschaftone", match.name_secound);
                     modal.find("#mannschafttwo").attr( "placeholder", ""+match.name_secound+" Tore" );
                     modal.find("#mannschafttwo").attr( "mannschafttwo", ""+match.name_secound);
+                    modal.find("#matchId").attr("value", match.id);
 
                       
                       
