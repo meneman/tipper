@@ -1,5 +1,9 @@
 <?php
 session_start();
+session_start();
+if(@!$_SESSION['sessionID'] OR @!$_SESSION['login']){
+    exit;
+}
 $sessionId = $_SESSION['sessionID'];
 //$d = array("localhost", "web308", "Muc9tAeM", "usr_web308_1");
 $d = array("localhost", "root", "", "tipper");
