@@ -34,6 +34,7 @@
 
 <?php       
    session_start();
+
     include_once('ajax/config.php');
     $error = array();
     if(@!$_SESSION['login'] AND isset($_POST['job'])) {
@@ -549,6 +550,12 @@
       
     <script>
         
+                   $.get('ajax/list.ajax.php', function(data) {
+                
+               
+                    localStorage.setItem('data', data);
+                   });
+        
         $(document).ready(function() {
 
         
@@ -558,43 +565,51 @@
             
             
             $('#newPlayerForm').ajaxForm(function() { 
-            init();
+            updateData();
                
             }); 
             
             $('#deletePlayerForm').ajaxForm(function() { 
-            init();      
+            updateData();      
 
             }); 
                         
             $('#newGameForm').ajaxForm(function() { 
-            init();      
+            updateData();      
 
             }); 
                                     
             $('#addResult').ajaxForm(function() { 
                 $("#SetScoreModal").modal('hide');
-            init();      
+            updateData();      
 
             }); 
                                     
             $('#makeBetForm').ajaxForm(function() { 
                 $("#TipGameModal").modal('hide');
-            init();      
+            updateData();      
 
             }); 
+            
+            function updateData() {
+                                   $.get('ajax/list.ajax.php', function(data) {
+                
+               
+                                localStorage.setItem('data', data);
+                                       init();
+                   })
+            }
+            
 
             function init(){
-             $.get('ajax/list.ajax.php', function(data) {
-                
-                AllData =$.parseJSON(data);
+                var AllData = JSON.parse(localStorage.getItem('data'));
 				console.log(AllData);
                 buildHtmlTable(AllData.spieler);
                 buildGamesList(AllData.matches);
                 buildPlayerSelectForm(AllData.spieler);
                 BuildHistoryTable(AllData.matches);
                 return AllData;
-            });
+
             }
             
             
@@ -784,7 +799,7 @@
             });
             
             
-             init();
+             updateData();
         });
         
                     
