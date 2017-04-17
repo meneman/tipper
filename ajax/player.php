@@ -2,10 +2,33 @@
 /**
  *  Model wrapper for player
  */
-class Player
+
+
+class Database {
+  public static $mysqli;
+
+  function __construct($d)
+  {
+      Database::$mysqli = new mysqli($d[0],$d[1],$d[2],$d[3]);
+
+  }
+
+
+  function checkConnectionForErrors(){
+    if (Database::$mysqli->connect_errno) {
+      printf("Connect failed: %s\n", $mysqli->connect_error);
+
+    } elseif (Database::$mysqli->connect_errno == 0) {
+      printf("mysqli static in Player returned no errors what so ever");
+    }
+  }
+
+}
+
+
+class Player extends Database
 {
 
-  private static $mysqli;
   private $connection;
   private $playerId;
   private $name;
@@ -13,65 +36,71 @@ class Player
 
   function __construct($id, $group)
   {
-    this->id = $id;
-    this->group = $group;
+    $this->id = $id;
+    $this->group = $group;
 
   }
 
    static function selectPlayer($id, $group,$d){
-    Player::$mysqli = new mysqli($d[0],$d[1],$d[2],$d[3]);
     $instance = new self($id, $group);
     $instance->updatePlayer();
     return $instance;
   }
   static function createPlayer($name){
-    $mysqli = Player::$mysqli;
+    $mysqli = parent::$mysqli;
     $mysqli->$mysqli->query("INSERT INTO `spieler` (`id`, `name`, `score`, `tip_count`, `dick`,`group`) VALUES (NULL, '".$name."', '', '', '0', '".$group."');");
   }
-  function updatePlayer($id, $group){
-    $mysqli = Player::$mysqli;
+  function updatePlayer(){
+    $mysqli = parent::$mysqli;
     //do mysql get SQLiteUnbuffered
     return true;
   }
 
-function checkConnectionForErrors(){
-  if (Player::$mysqli->connect_errno) {
-    printf("Connect failed: %s\n", $mysqli->connect_error);
-
-  } elseif (Player::$mysqli->connect_errno == 0) {
-    printf("mysqli static in Player returned no errors what so ever");
-  }
-}
-
 
 }
 $d = array("localhost", "root", "", "tipper");
-$player = Player::selectPlayer(34,10,$d);
-$player->checkConnectionForErrors();
+new Database($d);
 
 
 
 
-Class Group {
+Class Group extends Database{
 
 private $id;
-private $player;
-private $matches;
+private $player = array();
+private $matches = array();
 
 function __construct($id){
   $this->id = $id;
-  $this->collectPlayers();
 }
-  private function collectPlayers(){
-    if($matchSql = $mysqli->query("SELECT * FROM spieler WHERE session_id = '".$sessionId."'")) {
+
+  public function getPlayers(){
+    if($matchSql = parent::$mysqli->query("SELECT * FROM spieler WHERE session_id = '".$this->id."'")) {
         while ($row = $matchSql->fetch_array(MYSQL_ASSOC)) {
-            $count= $mysqli->query("SELECT count(*) AS total FROM tips WHERE spieler_id = ".$row["id"]."")->fetch_assoc()['total'];
-             $data["spieler"][$row["id"]] = array($row['name'], $row['score'], $row['dick'], $count);
+            $count= parent::$mysqli->query("SELECT count(*) AS total FROM tips WHERE spieler_id = ".$row["id"]."")->fetch_assoc()['total'];
+            $this->player[$row["id"]] = array($row['id'],$row['name'], $row['score'], $count);
         }
     }
 
+    return $this->player;
+
   }
+
+  public function getMatches(){
+    if($matchSql = parent::$mysqli->query("SELECT * FROM matches WHERE session_id = '".$this->id."'")) {
+        while ($row = $matchSql->fetch_array(MYSQL_ASSOC)) {
+             $this->matches["matches"][$row["id"]] = $row;
+
+        }
+    }
+  }
+
 }
+
+$group = new Group(10);
+var_dump($group->getPlayers());
+
+
 
 
 
