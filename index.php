@@ -8,9 +8,9 @@
     <meta name="author" content="">
 
     <!-- Le styles    <link href="/assets/css/bootstrap.css" rel="stylesheet"> -->
-   
+
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" crossorigin="anonymous">
-      
+
 
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="assets/css/costom.css" rel="stylesheet">
@@ -30,9 +30,9 @@
 
   <body>
 
-      
 
-<?php       
+
+<?php
    session_start();
 
     include_once('ajax/config.php');
@@ -54,29 +54,29 @@
                 if($rs) {
                     $error[] = 'Dieser Sessionname existiert bereits';
                     }
-                    
+
                 if(!isset($error[0])){
                     $passwort_hash = password_hash($pw, PASSWORD_DEFAULT);
-                    
+
                     $result = $mysqli->query("INSERT INTO `sessions` (`id`, `session_name`, `password`, `login_tries`) VALUES (NULL, '".$name."', '".$passwort_hash."', '0');");
                     $message = "Eine Neue Session wurde angelegt";
                 }
-                
-	           }    
-                
-                
-                
-                
+
+	           }
+
+
+
+
             } elseif($_POST['job'] == 'login') {
-                
+
                 $name = $_POST['sessionname'];
                 $pw = $_POST['password'];
                 // auslesen einer mysql zeiel
                 $session = $mysqli->query("SELECT * FROM sessions WHERE session_name = '".$name."'")->fetch_assoc();
-                
+
                 if( ((bool) $mysqli->query("SELECT EXISTS (SELECT 1 FROM sessions WHERE session_name = '".$name."')")->fetch_row()[0]) AND password_verify($pw, $session['password']) ){
-                    
-                    
+
+
                     $_SESSION['sessionID'] = $session['id'];
                     $_SESSION['login'] = true;
                 } else {
@@ -85,27 +85,27 @@
                 }
             }
 
-    } elseif(@!$_SESSION['login'] AND !isset($_POST['job'])) { 
+    } elseif(@!$_SESSION['login'] AND !isset($_POST['job'])) {
         $_SESSION['login'] = false;
     } else {
         //whatever happened here just dont log him in
          $_SESSION['login'] = false;
     }
-        
-    
+
+
 
 ?>
-        
-      <div class="container">      
-   <?php 
-        if($_SESSION['login']){ 
+
+      <div class="container">
+   <?php
+        if($_SESSION['login']){
     ?>
-        
 
 
 
-        
-        
+
+
+
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -121,38 +121,38 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        
-      <ul class="nav navbar-nav"> 
-        <li ><a href="#" data-toggle="modal" data-target="#newPlayer">neuen Spieler </a></li>  
+
+      <ul class="nav navbar-nav">
+        <li ><a href="#" data-toggle="modal" data-target="#newPlayer">neuen Spieler </a></li>
         <li ><a href="#" data-toggle="modal" data-target="#deletePlayer">Spieler löschen </a></li>
         <li ><a href="#" data-toggle="modal" data-target="#newPlayer">alle bets leeren </a></li>
         <li></li>
- 
+
       </ul>
 
-    
+
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 
-        
-        
+
+
 
 <div class="panel panel-info">
        <div class="panel panel-heading">
-        <h5 class"panel-title"> Bestenliste</h3>   
-     </div> 
-    
+        <h5 class"panel-title"> Bestenliste</h3>
+     </div>
+
         <div id="ranking"></div>
-        
+
 </div>
 
  <div class="panel panel-primary">
      <div class="panel panel-heading">
-        <h5 class"panel-title"> anstehende Spiele</h3>   
+        <h5 class"panel-title"> anstehende Spiele</h3>
      </div>
  <ul class="list-group">
-     
+
      <div id="upcomingGames"></div>
 
      <li class=list-group-item>
@@ -160,53 +160,53 @@
          <button type="button" class="btn btn-success btn-lg disabled"><span class="glyphicon glyphicon-plus" aria-hidden="true"></button>
          <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#newGame"></span> neues Spiel hinzufügen</button>
          </div>
-         
+
      </li>
   </ul>
-</div>       
+</div>
 
-        
+
 
  <div class="panel panel-primary">
      <div class="panel panel-heading">
-        <h5 class"panel-title"> History</h3>   
+        <h5 class"panel-title"> History</h3>
      </div>
 
         <div id="historyGames"></div>
 
-</div>       
+</div>
 
-        
 
-        
 
-      
+
+
+
       <!-- New Game Modal -->
 <div class="modal fade" id="newGame" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-        
+
         <form id="newGameForm" action="ajax/updateTable.php" method="POST">
-                    
-                    
+
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel"> Spiel hinzufügen</h4>
       </div>
       <div class="modal-body">
-                
+
             <form>
               <div class="form-group">
                 <label for="teamOne">Mannschaft 1:</label>
                 <input type="text" name="mannschaftone" class="form-control" id="mannschaftone" placeholder="Deutschland">
               </div>
-                
+
               <div class="form-group">
                 <label for="teamTwo">Mannschaft 2:</label>
                 <input type="text" name="mannschafttwo" class="form-control" id="mannschafttwo" placeholder="Russland">
               </div>
 
-                
+
               <div class="checkbox">
                 <label>
                   <input type="checkbox"> Heimspiel
@@ -219,54 +219,54 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
         <button type="submit"  class="btn btn-primary">hinzufügen</button>
       </div>
-            
-            
-        <input type="hidden" name="job" value="addGame">   
+
+
+        <input type="hidden" name="job" value="addGame">
         </form>
     </div>
   </div>
 </div>
-    
-    
+
+
     <!-- New Player Modal -->
 <div class="modal fade" id="newPlayer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-        
+
         <form id="newPlayerForm" action="ajax/updateTable.php" method="POST">
-        
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">Neuer Spieler</h4>
       </div>
       <div class="modal-body">
-             
-            
+
+
               <div class="form-group"
                   name="firstname">
                 <label for="mannschaftone">Name</label>
                 <input type="text" name="InputName" class="form-control" id="mannschaftone" placeholder="Gustav">
               </div>
-            
-        
+
+
               <div class="checkbox">
                 <label>
                   <input type="checkbox"> Ist der Spieler dick?
                 </label>
               </div>
-            
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
         <button type="submit" class="btn btn-primary">Spieler hinzufügen</button>
       </div>
-        
-        <input type="hidden" name="job" value="addPlayer">   
+
+        <input type="hidden" name="job" value="addPlayer">
         </form>
-      
+
     </div>
   </div>
-</div>  
+</div>
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
@@ -295,15 +295,15 @@
     </div>
   </div>
 </div>
-        
-        
-        
-    
+
+
+
+
     <!-- Delete Player Modal -->
 <div class="modal fade" id="deletePlayer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-        
+
         <form id="deletePlayerForm" action="ajax/updateTable.php" method="POST">
 
       <div class="modal-header">
@@ -311,147 +311,147 @@
         <h4 class="modal-title" id="myModalLabel">Spieler - löschen</h4>
       </div>
       <div class="modal-body">
-             
-            
+
+
               <div class="form-group">
                 <label for="selectedPlayer"></label>
                 <select multiple class="form-control" class="playerSelectForm" name="selectedPlayer" id="playerSelectFormDelete">
 
                 </select>
               </div>
-            
-    
-            
+
+
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">schließen</button>
         <button type="submit" class="btn btn-danger">Spieler löschen</button>
       </div>
-            
-        <input type="hidden" name="job" value="deletePlayer">         
+
+        <input type="hidden" name="job" value="deletePlayer">
         </form>
-      
+
     </div>
   </div>
-</div>  
+</div>
 
       <!-- Dynamic Modal Set Score -->
 <div class="modal fade"  id="SetScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    
+
   <div class="modal-dialog" role="document">
-      
+
     <div class="modal-content">
-        
-       <form  id="addResult" action="ajax/updateTable.php" method="POST"> 
-           
+
+       <form  id="addResult" action="ajax/updateTable.php" method="POST">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="setScoreLable">Neuer Spieler</h4>
       </div>
-        
-        
-        
+
+
+
       <div class="modal-body">
           <h4>Ergebniss: </h4>
             <div class="controls form-inline">
-                    
+
                 <div class="SetScoreInputs"></div>
-                
+
                 <input type="text" name="ResultFirst" class="form-control" id="mannschaftone" >
                 -
                 <input type="text" name="ResultSecound" class="form-control" id="mannschafttwo" placeholder="Gustav">
 
-            
+
           </div>
-                
-            
+
+
 
       </div>
-        
-        
+
+
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
         <button type="submit" type="button" class="btn btn-primary">Ergebnis eintragen</button>
       </div>
-         <input type="hidden" name="match" id="matchId">  
-        <input type="hidden" name="job" value="addResult">  
-        </form>  
+         <input type="hidden" name="match" id="matchId">
+        <input type="hidden" name="job" value="addResult">
+        </form>
     </div>
- 
+
     </div>
-    
-</div>  
-    
-    
-    
+
+</div>
+
+
+
     <!-- Dynamic Modal Tipping  -->
 <div class="modal fade"  id="TipGameModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    
+
   <div class="modal-dialog" role="document">
-      
+
     <div class="modal-content">
-        
-       <form  id="makeBetForm" action="ajax/updateTable.php" method="POST"> 
-           
+
+       <form  id="makeBetForm" action="ajax/updateTable.php" method="POST">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="setScoreLable">Tippen</h4>
       </div>
-        
-        
-        
+
+
+
       <div class="modal-body">
           <h4> Tip abgeben: </h4>
-          
-          
+
+
               <div class="form-group">
                 <label for="selectedPlayer"></label>
                 <select multiple class="form-control" class="playerSelectForm" name="selectedPlayer" id="playerSelectFormTip">
 
                 </select>
               </div>
-          
-            <div class="controls form-inline">
-                    
-                
-                
-                <input type="text" name="TipFirst" class="form-control" id="tipone" >
-        
-            
 
-                
+            <div class="controls form-inline">
+
+
+
+                <input type="text" name="TipFirst" class="form-control" id="tipone" >
+
+
+
+
                 <input type="text" name="TipSecound" class="form-control" id="tiptwo" >
 
-            
+
           </div>
-                
-            
+
+
 
       </div>
-        
-        
+
+
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="submit" type="button" class="btn btn-primary">Save changes</button>
       </div>
-           
-           
-        <input type="hidden" name="match" id="matchId">
-        <input type="hidden" name="job" value="tipGame">  
-        </form>  
-        
-        
-    </div>
- 
-    </div>
-    
-</div>  
-    
 
-    
-    
-       <?php 
-        } else { 
+
+        <input type="hidden" name="match" id="matchId">
+        <input type="hidden" name="job" value="tipGame">
+        </form>
+
+
+    </div>
+
+    </div>
+
+</div>
+
+
+
+
+       <?php
+        } else {
             if(isset($error[0])){
                 foreach($error as $key => $value){
                 echo "<div class='alert alert-warning' role='alert'>".$value."</div>";
@@ -460,7 +460,7 @@
                 echo "<div class='alert alert-success' role='alert'>".$message."</div>";
             }
     ?>
-     
+
 
 <div class="container">
     	<div class="row">
@@ -494,7 +494,7 @@
 											</div>
 										</div>
 									</div>
- <input type="hidden" name="job" value="login"> 
+ <input type="hidden" name="job" value="login">
 								</form>
 								<form id="register-form" action="index.php" method="post" role="form" style="display: none;">
                                     <h4> Neue Session anlegen</h4>
@@ -514,7 +514,7 @@
 											</div>
 										</div>
 									</div>
-                                    <input type="hidden" name="job" value="create">  
+                                    <input type="hidden" name="job" value="create">
 								</form>
 							</div>
 						</div>
@@ -528,78 +528,78 @@
 
 </script>
 
-           <?php 
+           <?php
         } // endif
-        ?>    
+        ?>
 
           </div>
-      
+
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 
     <script src="assets/js/jquery-1.12.3.min.js"></script>
-    
-    
+
+
     <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-    
-    
+
+
     <script src="assets/js/jquery.form.js"></script>
-    
-      
+
+
     <script>
-        
+
                    $.get('ajax/list.ajax.php', function(data) {
-                
-               
+
+
                     localStorage.setItem('data', data);
                    });
-        
+
         $(document).ready(function() {
 
-        
+
             $("#3").on('click', function(e) {
    $modal.modal('toggle', $(this));
 });
-            
-            
-            $('#newPlayerForm').ajaxForm(function() { 
+
+
+            $('#newPlayerForm').ajaxForm(function() {
             updateData();
-               
-            }); 
-            
-            $('#deletePlayerForm').ajaxForm(function() { 
-            updateData();      
 
-            }); 
-                        
-            $('#newGameForm').ajaxForm(function() { 
-            updateData();      
+            });
 
-            }); 
-                                    
-            $('#addResult').ajaxForm(function() { 
+            $('#deletePlayerForm').ajaxForm(function() {
+            updateData();
+
+            });
+
+            $('#newGameForm').ajaxForm(function() {
+            updateData();
+
+            });
+
+            $('#addResult').ajaxForm(function() {
                 $("#SetScoreModal").modal('hide');
-            updateData();      
+            updateData();
 
-            }); 
-                                    
-            $('#makeBetForm').ajaxForm(function() { 
+            });
+
+            $('#makeBetForm').ajaxForm(function() {
                 $("#TipGameModal").modal('hide');
-            updateData();      
+            updateData();
 
-            }); 
-            
+            });
+
             function updateData() {
                                    $.get('ajax/list.ajax.php', function(data) {
-                
-               
+
+
                                 localStorage.setItem('data', data);
                                        init();
                    })
             }
-            
+
 
             function init(){
                 var AllData = JSON.parse(localStorage.getItem('data'));
@@ -611,8 +611,8 @@
                 return AllData;
 
             }
-            
-            
+
+
             function buildHtmlTable(playerlist) {
                 console.log(playerlist);
                 //remove old Table
@@ -638,16 +638,16 @@
                 $tbody.append('<tr />').children('tr:last')
                 .append("<td>"+player[0]+" "+dicklabel+" </td>")
                 .append("<td>"+ player[1]+"</td>")
-                .append("<td> "+player[2]+"</td>");
+                .append("<td> "+player[3]+"</td>");
 
 
                 });
 
 
                 // add table to dom
-                $table.appendTo('#ranking');	
+                $table.appendTo('#ranking');
             }
-            
+
             function BuildHistoryTable(games){
                 console.log(games);
                 //remove old Table
@@ -671,7 +671,7 @@
                 .append("<td>"+match.spieldatuml+" </td>")
                 .append("<td>"+ match.name_first+" - "+match.name_secound+"</td>")
                 .append("<td> "+match.score_first+" - "+match.score_secound+"</td>");
-                        
+
                 }
 
 
@@ -679,61 +679,63 @@
 
 
                 // add table to dom
-                $table.appendTo('#historyGames');	
+                $table.appendTo('#historyGames');
             }
-            
-            
-            
+
+
+
             function buildGamesList(games){
                 $('#upcomingGames').children().remove();
                 $('#historyGames').children().remove();
-                
-                
+
+
                 var upcomingItems = [];
                 var historyItems = [];
             $.each(games, function(i, match)   {
-                
+
                 if(match.finished == 0){
-                upcomingItems.push("<li class=list-group-item>"+match.name_first+" vs. "+match.name_secound+" Datum: "+match.spieldatum+"                   <button data-toggle=modal data-target=#TipGameModal data-match="+i+" class='btn btn-warning btn-small'  id="+i+">tippen</button> <button data-toggle=modal data-target=#SetScoreModal data-match="+i+" class='btn btn-warning btn-small tipping'  id="+i+">Ergebnis</button> </li>"); 
+                upcomingItems.push("<li class=list-group-item>"+match.name_first+" vs. "+match.name_secound+" Datum: "+match.spieldatum+"                   <button data-toggle=modal data-target=#TipGameModal data-match="+i+" class='btn btn-warning btn-small'  id="+i+">tippen</button> <button data-toggle=modal data-target=#SetScoreModal data-match="+i+" class='btn btn-warning btn-small tipping'  id="+i+">Ergebnis</button> </li>");
                 } else {
                    historyItems.push("<tr><td>"+match.spieldatum+"</td><td>"+match.name_first+" - "+match.name_secound+"</td><td>"+match.score_first+" - "+match.score_secound+"</td></tr>");
-                    
-                }                      
+
+                }
             });
                 //console.log(tableHtml);
                 $('#upcomingGames').append(upcomingItems.join(' '));
 
 
             }
-            
+
             function buildPlayerSelectForm(player){
+              $('#playerSelectFormDelete').empty();
+                $('#playerSelectFormTip').empty();
             var listitems = [];
             $.each(player, function(i, player)   {
-                
-                listitems.push("<option value="+i+">"+player[0]+"</option>"); 
+
+                listitems.push("<option value="+i+">"+player[0]+"</option>");
             });
-                
-                
-                
+
+
+
                 $('#playerSelectFormDelete').append(listitems.join(' '));
                 $('#playerSelectFormTip').append(listitems.join(' '));
 
-                
 
-            
+
+
             // event which created dynamic modal
-    
+
             }
 
-       
-            
-            
+
+
+
              $("#TipGameModal").on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);
                 var matchId = button.data('match');
                 var modal = $(this);
 
-                
+
                 $.ajax({
                   url: "ajax/list.ajax.php",
                   type: "get", //send it through get method
@@ -748,28 +750,28 @@
                     //modal.find("#tiptwo").attr( "mannschafttwo", ""+match.name_secound);
                     modal.find("#matchId").attr("value", match.id);
 
-                      
-                      
-                      
-                      
-                      
+
+
+
+
+
                   },
                   error: function(xhr) {
                     //Do Something to handle error
                   }
                 });
-         
-              
-            });           
 
-            
-            
+
+            });
+
+
+
             $("#SetScoreModal").on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);
                 var matchId = button.data('match');
                 var modal = $(this);
 
-                
+
                 $.ajax({
                   url: "ajax/list.ajax.php",
                   type: "get", //send it through get method
@@ -784,26 +786,26 @@
                     modal.find("#mannschafttwo").attr( "mannschafttwo", ""+match.name_secound);
                     modal.find("#matchId").attr("value", match.id);
 
-                      
-                      
-                      
-                      
-                      
+
+
+
+
+
                   },
                   error: function(xhr) {
                     //Do Something to handle error
                   }
                 });
-         
-              
+
+
             });
-            
-            
+
+
              updateData();
         });
-        
-                    
-        
+
+
+
 $(function() {
 
     $('#login-form-link').click(function(e) {
@@ -822,8 +824,8 @@ $(function() {
 	});
 
 });
-        
-      
+
+
     </script>
 
   </body>
